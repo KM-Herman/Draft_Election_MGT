@@ -8,6 +8,7 @@
         public const string CanApproveCandidate = "Permissions.CanApproveCandidate";
         public const string CanViewDashboard = "Permissions.CanViewDashboard";
         public const string CanViewAdminStats = "Permissions.CanViewAdminStats";
+        public const string CanAccessCandidateDashboard = "Permissions.CanAccessCandidateDashboard";
 
         public static List<string> All = new List<string>
         {
@@ -16,7 +17,8 @@
             CanApplyForCandidacy,
             CanApproveCandidate,
             CanViewDashboard,
-            CanViewAdminStats
+            CanViewAdminStats,
+            CanAccessCandidateDashboard
         };
     }
 }

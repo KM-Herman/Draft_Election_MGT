@@ -15,7 +15,7 @@ namespace ElectionMGTAPI.Services
             _context = context;
         }
 
-        public async Task<(bool Success, string Error)> ApplyAsync(int userId, int positionId, string manifesto)
+        public async Task<(bool Success, string Error)> ApplyAsync(int userId, int positionId, string manifesto, string degree, bool hasBeenInJail, string maritalStatus, string nationalId)
         {
             // Check if already applied
             var existing = await _context.Candidates.FirstOrDefaultAsync(c => c.UserId == userId && c.PositionId == positionId);
@@ -27,24 +27,35 @@ namespace ElectionMGTAPI.Services
             var user = await _context.Users.FindAsync(userId);
             if (user == null) return (false, "User not found.");
 
-            // Mock profile completeness check
-            // Requirement: "If the user profile is complete (mock logic), set Status to Approved, otherwise Denied."
-            // Logic: ProfileDetails not null and not empty.
-            bool isProfileComplete = !string.IsNullOrWhiteSpace(user.ProfileDetails);
+            // Automatic Rejection Rule
+            if (hasBeenInJail)
+            {
+                // Can record it as Denied for history or just block.
+                // Let's create it as Denied.
+            }
 
             var candidate = new Candidate
             {
                 UserId = userId,
                 PositionId = positionId,
                 Manifesto = manifesto,
-                Status = isProfileComplete ? CandidateStatus.Approved : CandidateStatus.Denied,
+                // New Fields
+                Degree = degree,
+                HasBeenInJail = hasBeenInJail,
+                MaritalStatus = maritalStatus,
+                NationalId = nationalId,
+                // Logic: Refined to Pending for Admin Review, unless jail -> Denied
+                Status = hasBeenInJail ? CandidateStatus.Denied : CandidateStatus.Pending,
                 VoteCount = 0
             };
 
             _context.Candidates.Add(candidate);
             await _context.SaveChangesAsync();
 
-            return (true, isProfileComplete ? "Application approved automaticlly." : "Application denied due to incomplete profile.");
+            if (candidate.Status == CandidateStatus.Denied)
+                return (true, "Application denied automatically due to criminal record.");
+            
+            return (true, "Application submitted successfully. Pending Admin approval.");
         }
     }
 }

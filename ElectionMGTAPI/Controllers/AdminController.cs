@@ -11,7 +11,7 @@ namespace ElectionMGTAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin")] // Or Policy based for Admin actions
+    // [Authorize(Roles = "Admin")] // Removed to enforce Permission-Based Policy only
     // Requirement says: "Authorization: Strictly Permission-Based (Policy-Based), NOT Role-Based."
     // So I should use Policies. I'll use "CanViewAdminStats", "CanCreatePosition", etc.
     public class AdminController : ControllerBase
@@ -82,6 +82,124 @@ namespace ElectionMGTAPI.Controllers
             return Ok(pos);
         }
 
-        // Add User management if needed
+        [HttpGet("users")]
+        [Authorize(Policy = Permissions.CanViewAdminStats)]
+        public async Task<IActionResult> GetUsers()
+        {
+            var users = await _context.Users
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                .Select(u => new 
+                {
+                    u.Id,
+                    u.Name,
+                    u.Email,
+                    Role = u.UserRoles.Select(ur => ur.Role.Name).FirstOrDefault() ?? "None"
+                })
+                .ToListAsync();
+
+            return Ok(users);
+        }
+
+        [HttpPut("users/{id}/role")]
+        [Authorize(Policy = Permissions.CanViewAdminStats)] // Or a specific CanManageUsers permission
+        public async Task<IActionResult> UpdateUserRole(int id, [FromBody] UpdateRoleRequest request)
+        {
+            var user = await _context.Users.Include(u => u.UserRoles).FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null) return NotFound("User not found");
+
+            var newRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == request.RoleName);
+            if (newRole == null) return BadRequest("Role not found");
+
+            // Clear existing roles (assuming single role per user for simplicity)
+            _context.UserRoles.RemoveRange(user.UserRoles);
+            
+            // Add new role
+            user.UserRoles.Add(new UserRole { UserId = user.Id, RoleId = newRole.Id });
+            await _context.SaveChangesAsync();
+
+            return Ok($"User role updated to {request.RoleName}");
+        }
+
+        [HttpDelete("users/{id}")]
+        [Authorize(Policy = Permissions.CanViewAdminStats)]
+        public async Task<IActionResult> DeleteUser(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null) return NotFound("User not found");
+
+            // Check if deleting self?
+            // Optional safety check needed here? 
+
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+
+            return Ok("User deleted successfully.");
+        }
+
+        [HttpGet("logs")]
+        [Authorize(Policy = Permissions.CanViewAdminStats)]
+        public async Task<IActionResult> GetLogs()
+        {
+            var logs = await _context.AuditLogs
+                .OrderByDescending(l => l.Timestamp)
+                .Take(50) // Limit to recent logs
+                .ToListAsync();
+            return Ok(logs);
+        }
+
+        [HttpGet("candidates/pending")]
+        [Authorize(Policy = Permissions.CanApproveCandidate)]
+        public async Task<IActionResult> GetPendingCandidates()
+        {
+            var pending = await _context.Candidates
+                .Include(c => c.User)
+                .Include(c => c.Position)
+                .Where(c => c.Status == Enum.CandidateStatus.Pending)
+                .Select(c => new
+                {
+                    c.Id,
+                    Name = c.User != null ? c.User.Name : "Unknown",
+                    Position = c.Position != null ? c.Position.Title : "Unknown",
+                    c.Manifesto,
+                    c.UserId
+                })
+                .ToListAsync();
+            return Ok(pending);
+        }
+
+        [HttpPut("candidates/{id}/approve")]
+        [Authorize(Policy = Permissions.CanApproveCandidate)]
+        public async Task<IActionResult> ApproveCandidate(int id)
+        {
+            var candidate = await _context.Candidates.FindAsync(id);
+            if (candidate == null) return NotFound("Candidate not found");
+
+            candidate.Status = Enum.CandidateStatus.Approved;
+            
+            // Assign Candidate Role
+            var user = await _context.Users.Include(u => u.UserRoles).FirstOrDefaultAsync(u => u.Id == candidate.UserId);
+            var candidateRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "Candidate");
+            
+            if (user != null && candidateRole != null)
+            {
+                if (!user.UserRoles.Any(ur => ur.RoleId == candidateRole.Id))
+                {
+                    user.UserRoles.Add(new UserRole { UserId = user.Id, RoleId = candidateRole.Id });
+                }
+            }
+
+            // Log the action
+            _context.AuditLogs.Add(new AuditLog 
+            { 
+                Action = "Candidate Approved", 
+                Details = $"Candidate {candidate.Id} approved for Position {candidate.PositionId}",
+                Timestamp = DateTime.UtcNow,
+                PerformedBy = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+            });
+
+            await _context.SaveChangesAsync();
+            return Ok("Candidate approved successfully.");
+        }
     }
 }

@@ -6,7 +6,18 @@
 
     public record VoteRequest(int CandidateId, int PositionId);
 
-    public record CandidateApplicationRequest(int PositionId, string Manifesto);
+    public record CandidateApplicationRequest(
+        int PositionId, 
+        string Manifesto,
+        string Degree,
+        bool HasBeenInJail,
+        string MaritalStatus,
+        string NationalId
+    );
+
+    public record UpdateProfileRequest(string Name, string ProfileDetails);
+    public record UpdateManifestoRequest(string Manifesto);
+
     public record CandidateStatsResponse(int Rank, int VoteCount);
 
     public record PositionDto(int Id, string Title, string Description);

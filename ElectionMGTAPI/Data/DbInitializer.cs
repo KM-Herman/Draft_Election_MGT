@@ -46,6 +46,27 @@ namespace ElectionMGTAPI.Data
                 await context.SaveChangesAsync();
             }
 
+            // Ensure Candidate Role Exists (Independent Check)
+            if (!await context.Roles.AnyAsync(r => r.Name == "Candidate"))
+            {
+                var candidateRole = new Role { Name = "Candidate" };
+                context.Roles.Add(candidateRole);
+                await context.SaveChangesAsync();
+
+                var allPerms = await context.Permissions.ToListAsync();
+                var candidatePerms = allPerms.Where(p =>
+                    p.Name == Permissions.CanVote ||
+                    p.Name == Permissions.CanViewDashboard ||
+                    p.Name == Permissions.CanAccessCandidateDashboard
+                ).ToList();
+
+                foreach (var p in candidatePerms)
+                {
+                    context.RolePermissions.Add(new RolePermission { RoleId = candidateRole.Id, PermissionId = p.Id });
+                }
+                await context.SaveChangesAsync();
+            }
+
             if (!await context.Users.AnyAsync(u => u.Email == "admin@election.com"))
             {
                 var adminUser = new User

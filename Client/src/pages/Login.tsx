@@ -16,42 +16,44 @@ export const Login: React.FC = () => {
             // Updated endpoint based on AuthController analysis
             const res = await api.post('/auth/login', { email, password });
             const { token, user } = res.data;
-            // The backend returns { token, error } but not the user object directly often, 
-            // or the JWT contains the user claims.
-            // Let's assume for now we parse the token or fetch user profile. 
-            // Standard JWT pattern: decode payload or fetch /auth/me. 
-            // The AuthController Login returns: new AuthResponse(result.Token, string.Empty)
-            // It does NOT return the user object.
-            // We need to decode the token to get permissions/role or fetch a profile endpoint.
-            // For this specific iteration, let's assume we decode simple claims or 
-            // fetch a user profile immediately after login.
-            // But wait, the stores needs a User object.
+            // Decode token to get permissions
+            // Simple manual decode for JWT payload (Part 2)
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
 
-            // Let's Mock the user object creation from token or a follow-up call 
-            // if the backend doesn't provide it yet, to keep the flow moving.
+            const payload = JSON.parse(jsonPayload);
+            // Permissions might be array or single string in claim "permissions"
+            let permissions: string[] = [];
+            if (Array.isArray(payload.permissions)) {
+                permissions = payload.permissions;
+            } else if (payload.permissions) {
+                permissions = [payload.permissions];
+            }
 
-            // Temporary: Mock user based on email (admin vs voter) for demo purposes if backend doesn't return full user obj.
-            // OR ideally, we assume the token has claims we can parse.
-
-            const mockUser = {
+            const userWithPerms = {
                 email: email,
-                permissions: email.includes('admin')
-                    ? ['Permissions.CanViewAdminStats', 'Permissions.CanCreatePosition']
-                    : ['Permissions.CanViewDashboard', 'Permissions.Vote']
+                name: email.split('@')[0], // Mock name fallback, or use claim if available
+                profileDetails: '',
+                permissions: permissions
             };
 
-            setAuth(token, mockUser);
+            setAuth(token, userWithPerms);
             toast.success("Welcome back!");
 
-            if (email.includes('admin')) {
+            // Route based on permissions
+            if (permissions.includes('Permissions.CanViewAdminStats')) {
                 navigate('/admin');
-            } else if (email.includes('candidate')) {
+            } else if (permissions.includes('Permissions.CanAccessCandidateDashboard')) {
                 navigate('/candidate');
             } else {
                 navigate('/voter');
             }
 
         } catch (err: any) {
+            console.error(err);
             toast.error(err.response?.data?.error || "Login Failed");
         }
     };

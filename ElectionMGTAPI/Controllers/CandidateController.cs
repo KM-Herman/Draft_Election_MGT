@@ -29,13 +29,18 @@ namespace ElectionMGTAPI.Controllers
         public async Task<IActionResult> Apply(CandidateApplicationRequest request)
         {
             var userId = GetUserId();
-            var result = await _candidateService.ApplyAsync(userId, request.PositionId, request.Manifesto);
+            var result = await _candidateService.ApplyAsync(
+                userId, 
+                request.PositionId, 
+                request.Manifesto,
+                request.Degree,
+                request.HasBeenInJail,
+                request.MaritalStatus,
+                request.NationalId
+            );
 
             if (!result.Success) return BadRequest(result.Error);
-            return Ok(result.Error); // Success message is in Error field? Refactor tuple.
-            // Wait, tuple is (Success, Error). If Success, Error might be message or empty.
-            // Service returned message in Error field for success, let's fix that or use it.
-            // "Application approved automaticlly." in Error.
+            return Ok(result.Error); 
         }
 
         [HttpGet("stats")]
@@ -52,6 +57,18 @@ namespace ElectionMGTAPI.Controllers
                 .CountAsync() + 1;
 
             return Ok(new CandidateStatsResponse(rank, candidate.VoteCount));
+        }
+
+        [HttpPut("manifesto")]
+        public async Task<IActionResult> UpdateManifesto(UpdateManifestoRequest request)
+        {
+            var userId = GetUserId();
+            var candidate = await _context.Candidates.FirstOrDefaultAsync(c => c.UserId == userId);
+            if (candidate == null) return NotFound("Candidate record not found.");
+
+            candidate.Manifesto = request.Manifesto;
+            await _context.SaveChangesAsync();
+            return Ok("Manifesto updated successfully.");
         }
     }
 }

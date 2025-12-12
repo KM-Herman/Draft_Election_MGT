@@ -1,6 +1,5 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useAuthStore } from './store/authStore';
 import { SignalRProvider } from './context/SignalRContext';
 import { VoterDashboard } from './pages/VoterDashboard';
 import { PermissionGate } from './components/PermissionGate';
@@ -43,9 +42,11 @@ const App: React.FC = () => {
                     } />
 
                     <Route path="/candidate" element={
-                        <LayoutWrapper>
-                            <CandidateDashboard />
-                        </LayoutWrapper>
+                        <PermissionGate permission="Permissions.CanAccessCandidateDashboard">
+                            <LayoutWrapper>
+                                <CandidateDashboard />
+                            </LayoutWrapper>
+                        </PermissionGate>
                     } />
 
                     {/* Default Redirect */}

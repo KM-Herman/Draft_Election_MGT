@@ -66,5 +66,19 @@ namespace ElectionMGTAPI.Controllers
                 .ToListAsync();
             return Ok(notifs);
         }
+
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateProfile(UpdateProfileRequest request)
+        {
+            var userId = GetUserId();
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) return NotFound("User not found");
+
+            user.Name = request.Name;
+            user.ProfileDetails = request.ProfileDetails;
+            
+            await _context.SaveChangesAsync();
+            return Ok("Profile updated successfully");
+        }
     }
 }
