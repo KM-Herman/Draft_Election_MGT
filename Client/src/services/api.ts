@@ -45,6 +45,11 @@ export interface PendingCandidate {
     name: string;
     position: string;
     manifesto: string;
+    // New fields
+    degree: string;
+    nationalId: string;
+    hasBeenInJail: boolean;
+    maritalStatus: string;
     userId: number;
 }
 

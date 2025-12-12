@@ -22,20 +22,26 @@ export const LiveChart: React.FC = () => {
         if (!connection) return;
 
         connection.on("ReceiveVoteUpdate", (candidateId: number, newCount: number) => {
-            console.log(`Update: Candidate ${candidateId} -> ${newCount}`);
-
             setData(prevData => {
-                return prevData.map(item => {
-                    if (item.id === candidateId) {
-                        return { ...item, votes: newCount };
-                    }
-                    return item;
-                });
+                const exists = prevData.find(d => d.id === candidateId);
+                if (exists) {
+                    return prevData.map(d => d.id === candidateId ? { ...d, votes: newCount } : d);
+                } else {
+                    // New candidate appearing in chart!
+                    // We need the name. SignalR might need to send it, or we fetch it.
+                    // For simplicity, we might just re-fetch the whole list if we can.
+                    return prevData;
+                }
             });
+        });
+
+        connection.on("UpdateDashboard", () => {
+            // Mock Refresh or re-fetch logic
         });
 
         return () => {
             connection.off("ReceiveVoteUpdate");
+            connection.off("UpdateDashboard");
         };
     }, [connection]);
 

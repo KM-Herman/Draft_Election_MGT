@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api, { UserDto, AuditLog, PendingCandidate } from '../services/api';
 import { toast } from 'react-toastify';
 import { LiveChart } from '../components/LiveChart';
+import { useSignalR } from '../context/SignalRContext';
 
 interface AdminStats {
     totalUsers: number;
@@ -128,8 +129,71 @@ export const AdminDashboard: React.FC = () => {
 
     const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'election' | 'notifications'>('overview');
 
+    const { connection } = useSignalR();
+    const [selectedCandidate, setSelectedCandidate] = useState<PendingCandidate | null>(null);
+
+    useEffect(() => {
+        if (!connection) return;
+
+        connection.on("UpdateDashboard", () => {
+            fetchStats();
+            fetchPendingCandidates();
+            fetchUsers();
+            toast.info("Dashboard updated via live signal.");
+        });
+
+        // Also listen for ReceiveNotification for logs?
+
+        return () => {
+            connection.off("UpdateDashboard");
+        }
+    }, [connection]);
+
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 relative">
+            {/* Modal for Candidate Details */}
+            {selectedCandidate && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
+                    <div className="bg-white rounded-lg p-8 max-w-lg w-full shadow-2xl">
+                        <h3 className="text-2xl font-bold mb-4 border-b pb-2">Application Details</h3>
+                        <div className="space-y-3 text-gray-700">
+                            <p><strong>Name:</strong> {selectedCandidate.name}</p>
+                            <p><strong>Position:</strong> {selectedCandidate.position}</p>
+                            <p><strong>National ID:</strong> {selectedCandidate.nationalId}</p>
+                            <p><strong>Degree/Qualification:</strong> {selectedCandidate.degree}</p>
+                            <p><strong>Marital Status:</strong> {selectedCandidate.maritalStatus}</p>
+                            <p>
+                                <strong>Criminal Record:</strong>
+                                <span className={`ml-2 px-2 py-0.5 rounded text-sm ${selectedCandidate.hasBeenInJail ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                                    {selectedCandidate.hasBeenInJail ? 'Yes, has record' : 'Clean Record'}
+                                </span>
+                            </p>
+                            <div className="mt-4">
+                                <strong>Manifesto:</strong>
+                                <p className="mt-1 p-3 bg-gray-50 rounded italic text-sm border">{selectedCandidate.manifesto}</p>
+                            </div>
+                        </div>
+                        <div className="mt-6 flex justify-end space-x-3">
+                            <button
+                                onClick={() => setSelectedCandidate(null)}
+                                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-gray-800"
+                            >
+                                Close
+                            </button>
+                            <button
+                                onClick={() => {
+                                    handleApproveCandidate(selectedCandidate.id);
+                                    setSelectedCandidate(null);
+                                }}
+                                className="px-4 py-2 bg-green-600 rounded hover:bg-green-700 text-white"
+                            >
+                                Approve Candidate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Tab Navigation */}
             <div className="flex space-x-4 border-b">
                 {['overview', 'users', 'election', 'notifications'].map((tab) => (
@@ -259,12 +323,12 @@ export const AdminDashboard: React.FC = () => {
                                                 <td className="py-3">{cand.name}</td>
                                                 <td className="py-3 font-medium text-blue-600">{cand.position}</td>
                                                 <td className="py-3 text-gray-500 truncate max-w-xs">{cand.manifesto}</td>
-                                                <td className="py-3">
+                                                <td className="py-3 flex space-x-2">
                                                     <button
-                                                        onClick={() => handleApproveCandidate(cand.id)}
-                                                        className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-xs"
+                                                        onClick={() => setSelectedCandidate(cand)}
+                                                        className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-xs"
                                                     >
-                                                        Approve
+                                                        Review Application
                                                     </button>
                                                 </td>
                                             </tr>
