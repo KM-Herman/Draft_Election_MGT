@@ -1,0 +1,70 @@
+﻿using ElectionMGTAPI.Constant;
+using ElectionMGTAPI.Data;
+using ElectionMGTAPI.DTOs;
+using ElectionMGTAPI.Enum;
+using ElectionMGTAPI.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace ElectionMGTAPI.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    [Authorize] // Requires Authenticated User
+    public class VoterController : ControllerBase
+    {
+        private readonly AppDbContext _context;
+        private readonly IVoteService _voteService;
+
+        public VoterController(AppDbContext context, IVoteService voteService)
+        {
+            _context = context;
+            _voteService = voteService;
+        }
+
+        private int GetUserId() => int.Parse(User.FindFirst("id")?.Value ?? "0");
+
+        [HttpGet("dashboard")]
+        [Authorize(Policy = Permissions.CanViewDashboard)]
+        public async Task<IActionResult> GetDashboard()
+        {
+            var positions = await _context.Positions.Where(p => p.IsActive).ToListAsync();
+            var candidates = await _context.Candidates
+                .Include(c => c.User)
+                .Where(c => c.Status == CandidateStatus.Approved)
+                .ToListAsync();
+
+            var posDtos = positions.Select(p => new PositionDto(p.Id, p.Title, p.Description)).ToList();
+            var candDic = candidates.GroupBy(c => c.PositionId)
+                .ToDictionary(g => g.Key, g => g.Select(c => new CandidateDto(c.Id, c.User?.Name ?? "Unknown", c.Manifesto, c.VoteCount)).ToList());
+
+            return Ok(new DashboardResponse(posDtos, candDic));
+        }
+
+        [HttpPost("vote")]
+        [Authorize(Policy = Permissions.CanVote)]
+        public async Task<IActionResult> Vote(VoteRequest request)
+        {
+            var userId = GetUserId();
+            var result = await _voteService.CastVoteAsync(userId, request.CandidateId, request.PositionId);
+
+            if (!result.Success)
+            {
+                return BadRequest(result.Error);
+            }
+            return Ok("Vote cast successfully.");
+        }
+
+        [HttpGet("notifications")]
+        public async Task<IActionResult> GetNotifications()
+        {
+            var userId = GetUserId();
+            var notifs = await _context.Notifications
+                .Where(n => n.UserId == userId)
+                .OrderByDescending(n => n.DateSent)
+                .ToListAsync();
+            return Ok(notifs);
+        }
+    }
+}

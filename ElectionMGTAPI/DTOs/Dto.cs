@@ -1,0 +1,17 @@
+﻿namespace ElectionMGTAPI.DTOs
+{
+    public record LoginRequest(string Email, string Password);
+    public record RegisterRequest(string Name, string Email, string Password);
+    public record AuthResponse(string Token, string Error);
+
+    public record VoteRequest(int CandidateId, int PositionId);
+
+    public record CandidateApplicationRequest(int PositionId, string Manifesto);
+    public record CandidateStatsResponse(int Rank, int VoteCount);
+
+    public record PositionDto(int Id, string Title, string Description);
+    public record CandidateDto(int Id, string Name, string Manifesto, int VoteCount);
+    public record DashboardResponse(List<PositionDto> Positions, Dictionary<int, List<CandidateDto>> CandidatesByPosition);
+
+    public record BroadcastRequest(string Message, string TargetGroup);
+}

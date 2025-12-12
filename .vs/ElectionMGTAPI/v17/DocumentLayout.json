@@ -1,0 +1,129 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\DotNet\\Projects\\ElectionMGTAPI\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{BAF1AE18-0B69-4EFE-B868-150844270A64}|ElectionMGTAPI\\ElectionMGTAPI.csproj|d:\\dotnet\\projects\\electionmgtapi\\electionmgtapi\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BAF1AE18-0B69-4EFE-B868-150844270A64}|ElectionMGTAPI\\ElectionMGTAPI.csproj|solutionrelative:electionmgtapi\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BAF1AE18-0B69-4EFE-B868-150844270A64}|ElectionMGTAPI\\ElectionMGTAPI.csproj|d:\\dotnet\\projects\\electionmgtapi\\electionmgtapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{BAF1AE18-0B69-4EFE-B868-150844270A64}|ElectionMGTAPI\\ElectionMGTAPI.csproj|solutionrelative:electionmgtapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BAF1AE18-0B69-4EFE-B868-150844270A64}|ElectionMGTAPI\\ElectionMGTAPI.csproj|d:\\dotnet\\projects\\electionmgtapi\\electionmgtapi\\migrations\\20251211123257_firstmigration.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BAF1AE18-0B69-4EFE-B868-150844270A64}|ElectionMGTAPI\\ElectionMGTAPI.csproj|solutionrelative:electionmgtapi\\migrations\\20251211123257_firstmigration.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BAF1AE18-0B69-4EFE-B868-150844270A64}|ElectionMGTAPI\\ElectionMGTAPI.csproj|d:\\dotnet\\projects\\electionmgtapi\\electionmgtapi\\migrations\\20251211124035_secondmigration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BAF1AE18-0B69-4EFE-B868-150844270A64}|ElectionMGTAPI\\ElectionMGTAPI.csproj|solutionrelative:electionmgtapi\\migrations\\20251211124035_secondmigration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BAF1AE18-0B69-4EFE-B868-150844270A64}|ElectionMGTAPI\\ElectionMGTAPI.csproj|d:\\dotnet\\projects\\electionmgtapi\\electionmgtapi\\migrations\\appdbcontextmodelsnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BAF1AE18-0B69-4EFE-B868-150844270A64}|ElectionMGTAPI\\ElectionMGTAPI.csproj|solutionrelative:electionmgtapi\\migrations\\appdbcontextmodelsnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BAF1AE18-0B69-4EFE-B868-150844270A64}|ElectionMGTAPI\\ElectionMGTAPI.csproj|d:\\dotnet\\projects\\electionmgtapi\\electionmgtapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{BAF1AE18-0B69-4EFE-B868-150844270A64}|ElectionMGTAPI\\ElectionMGTAPI.csproj|solutionrelative:electionmgtapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 4,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{b1e99781-ab81-11d0-b683-00aa00a3ee26}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "20251211124035_SecondMigration.cs",
+              "DocumentMoniker": "D:\\DotNet\\Projects\\ElectionMGTAPI\\ElectionMGTAPI\\Migrations\\20251211124035_SecondMigration.cs",
+              "RelativeDocumentMoniker": "ElectionMGTAPI\\Migrations\\20251211124035_SecondMigration.cs",
+              "ToolTip": "D:\\DotNet\\Projects\\ElectionMGTAPI\\ElectionMGTAPI\\Migrations\\20251211124035_SecondMigration.cs",
+              "RelativeToolTip": "ElectionMGTAPI\\Migrations\\20251211124035_SecondMigration.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-11T12:41:18.066Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "AuthService.cs",
+              "DocumentMoniker": "D:\\DotNet\\Projects\\ElectionMGTAPI\\ElectionMGTAPI\\Services\\AuthService.cs",
+              "RelativeDocumentMoniker": "ElectionMGTAPI\\Services\\AuthService.cs",
+              "ToolTip": "D:\\DotNet\\Projects\\ElectionMGTAPI\\ElectionMGTAPI\\Services\\AuthService.cs",
+              "RelativeToolTip": "ElectionMGTAPI\\Services\\AuthService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-11T12:35:09.398Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "20251211123257_FirstMigration.Designer.cs",
+              "DocumentMoniker": "D:\\DotNet\\Projects\\ElectionMGTAPI\\ElectionMGTAPI\\Migrations\\20251211123257_FirstMigration.Designer.cs",
+              "RelativeDocumentMoniker": "ElectionMGTAPI\\Migrations\\20251211123257_FirstMigration.Designer.cs",
+              "ToolTip": "D:\\DotNet\\Projects\\ElectionMGTAPI\\ElectionMGTAPI\\Migrations\\20251211123257_FirstMigration.Designer.cs",
+              "RelativeToolTip": "ElectionMGTAPI\\Migrations\\20251211123257_FirstMigration.Designer.cs",
+              "ViewState": "AgIAAG8BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-11T12:41:27.19Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "AppDbContextModelSnapshot.cs",
+              "DocumentMoniker": "D:\\DotNet\\Projects\\ElectionMGTAPI\\ElectionMGTAPI\\Migrations\\AppDbContextModelSnapshot.cs",
+              "RelativeDocumentMoniker": "ElectionMGTAPI\\Migrations\\AppDbContextModelSnapshot.cs",
+              "ToolTip": "D:\\DotNet\\Projects\\ElectionMGTAPI\\ElectionMGTAPI\\Migrations\\AppDbContextModelSnapshot.cs",
+              "RelativeToolTip": "ElectionMGTAPI\\Migrations\\AppDbContextModelSnapshot.cs",
+              "ViewState": "AgIAAD8BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-11T12:41:02.187Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\DotNet\\Projects\\ElectionMGTAPI\\ElectionMGTAPI\\Program.cs",
+              "RelativeDocumentMoniker": "ElectionMGTAPI\\Program.cs",
+              "ToolTip": "D:\\DotNet\\Projects\\ElectionMGTAPI\\ElectionMGTAPI\\Program.cs",
+              "RelativeToolTip": "ElectionMGTAPI\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-11T12:28:04.257Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "D:\\DotNet\\Projects\\ElectionMGTAPI\\ElectionMGTAPI\\appsettings.json",
+              "RelativeDocumentMoniker": "ElectionMGTAPI\\appsettings.json",
+              "ToolTip": "D:\\DotNet\\Projects\\ElectionMGTAPI\\ElectionMGTAPI\\appsettings.json",
+              "RelativeToolTip": "ElectionMGTAPI\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAABiAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-12-11T12:28:01.349Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
