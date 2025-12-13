@@ -23,6 +23,23 @@ namespace ElectionMGTAPI.Controllers
             {
                 return Unauthorized(new { error = result.Error });
             }
+
+            if (result.RequiresOtp)
+            {
+                return Ok(new { requiresOtp = true, message = result.Error });
+            }
+
+            return Ok(new AuthResponse(result.Token, string.Empty));
+        }
+
+        [HttpPost("verify-otp")]
+        public async Task<IActionResult> VerifyOtp(VerifyOtpRequest request)
+        {
+            var result = await _authService.VerifyOtpAsync(request.Email, request.Otp);
+            if (!result.Success)
+            {
+                return Unauthorized(new { error = result.Error });
+            }
             return Ok(new AuthResponse(result.Token, string.Empty));
         }
 

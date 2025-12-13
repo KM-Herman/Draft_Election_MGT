@@ -76,12 +76,12 @@ namespace ElectionMGTAPI.Data
             }
             await context.SaveChangesAsync();
 
-            if (!await context.Users.AnyAsync(u => u.Email == "admin@election.com"))
+            if (!await context.Users.AnyAsync(u => u.Email == "admin@yopmail.com"))
             {
                 var adminUser = new User
                 {
                     Name = "Admin User",
-                    Email = "admin@election.com",
+                    Email = "adminelect@yopmail.com",
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
                     IsActive = true
                 };

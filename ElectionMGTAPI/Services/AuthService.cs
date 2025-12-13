@@ -5,12 +5,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ElectionMGTAPI.Services
 {
-    public class AuthService(AppDbContext context, ITokenService tokenService) : IAuthService
+    public class AuthService(AppDbContext context, ITokenService tokenService, IEmailService emailService) : IAuthService
     {
         private readonly AppDbContext _context = context;
         private readonly ITokenService _tokenService = tokenService;
+        private readonly IEmailService _emailService = emailService;
 
-        public async Task<(bool Success, string Token, string Error)> LoginAsync(string email, string password)
+        public async Task<(bool Success, string Token, bool RequiresOtp, string Error)> LoginAsync(string email, string password)
         {
             var user = await _context.Users
                 .Include(u => u.UserRoles)
@@ -21,13 +22,45 @@ namespace ElectionMGTAPI.Services
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
             {
-                return (false, string.Empty, "Invalid credentials");
+                return (false, string.Empty, false, "Invalid credentials");
             }
 
             if (!user.IsActive)
-                return (false, string.Empty, "Account is inactive");
+                return (false, string.Empty, false, "Account is inactive");
 
-            // Aggregate permissions
+            // Generate OTP
+            var otp = new Random().Next(100000, 999999).ToString();
+            user.OtpCode = otp;
+            user.OtpExpiry = DateTime.UtcNow.AddMinutes(10);
+            await _context.SaveChangesAsync();
+
+            // Send Email
+            await _emailService.SendEmailAsync(user.Email, "Login OTP", $"Your OTP Code is: {otp}");
+
+            return (true, string.Empty, true, "OTP sent to email");
+        }
+
+        public async Task<(bool Success, string Token, string Error)> VerifyOtpAsync(string email, string otp)
+        {
+            var user = await _context.Users
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                .ThenInclude(r => r.RolePermissions)
+                .ThenInclude(rp => rp.Permission)
+                .FirstOrDefaultAsync(u => u.Email == email);
+
+            if (user == null)
+                return (false, string.Empty, "User not found");
+
+            if (user.OtpCode != otp || user.OtpExpiry < DateTime.UtcNow)
+                return (false, string.Empty, "Invalid or Expired OTP");
+
+            // Clear OTP
+            user.OtpCode = null;
+            user.OtpExpiry = null;
+            await _context.SaveChangesAsync();
+
+            // Generate Token
             var permissions = user.UserRoles
                 .SelectMany(ur => ur.Role!.RolePermissions)
                 .Select(rp => rp.Permission!.Name)
@@ -35,7 +68,6 @@ namespace ElectionMGTAPI.Services
                 .ToList();
 
             var token = _tokenService.GenerateToken(user, permissions);
-
             return (true, token, string.Empty);
         }
 

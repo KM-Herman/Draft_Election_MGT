@@ -3,6 +3,7 @@
     public record LoginRequest(string Email, string Password);
     public record RegisterRequest(string Name, string Email, string Password);
     public record AuthResponse(string Token, string Error);
+    public record VerifyOtpRequest(string Email, string Otp);
 
     public record VoteRequest(int CandidateId, int PositionId);
 
