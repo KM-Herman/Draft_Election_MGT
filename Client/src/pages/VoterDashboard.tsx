@@ -31,20 +31,17 @@ export const VoterDashboard: React.FC = () => {
     useEffect(() => {
         fetchDashboard();
         fetchNotifications();
-
-        // Load voted positions from local storage for persistency demo
-        const savedVotes = localStorage.getItem('votedPositions');
-        if (savedVotes) {
-            setVotedPositions(new Set(JSON.parse(savedVotes)));
-        }
     }, []);
 
     const fetchDashboard = async () => {
         try {
             const res = await api.get('/voter/dashboard');
             // Ensure data structure matches expected type
-            if (res.data && res.data.positions) {
+            if (res.data) {
                 setData(res.data);
+                if (res.data.userVotedPositionIds) {
+                    setVotedPositions(new Set(res.data.userVotedPositionIds));
+                }
             }
         } catch (err) {
             console.error(err);
@@ -65,12 +62,10 @@ export const VoterDashboard: React.FC = () => {
             await api.post('/voter/vote', { candidateId, positionId });
             toast.success("Vote Cast Successfully!");
 
-            // Update local vote tracking
-            const newVotes = new Set(votedPositions).add(positionId);
-            setVotedPositions(newVotes);
-            localStorage.setItem('votedPositions', JSON.stringify(Array.from(newVotes)));
+            // Optimistic Update
+            setVotedPositions(prev => new Set(prev).add(positionId));
 
-            fetchDashboard(); // Refresh counts
+            fetchDashboard(); // Refresh counts from server
         } catch (err: any) {
             toast.error(err.response?.data || "Voting failed");
         }

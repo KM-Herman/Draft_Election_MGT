@@ -3,26 +3,27 @@ using ElectionMGTAPI.Data;
 using ElectionMGTAPI.DTOs;
 using ElectionMGTAPI.Entities;
 using ElectionMGTAPI.Interfaces;
+using ElectionMGTAPI.Hubs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.SignalR;
 
 namespace ElectionMGTAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    // [Authorize(Roles = "Admin")] // Removed to enforce Permission-Based Policy only
-    // Requirement says: "Authorization: Strictly Permission-Based (Policy-Based), NOT Role-Based."
-    // So I should use Policies. I'll use "CanViewAdminStats", "CanCreatePosition", etc.
     public class AdminController : ControllerBase
     {
         private readonly AppDbContext _context;
         private readonly IEmailService _emailService;
+        private readonly IHubContext<ElectionHub> _hubContext;
 
-        public AdminController(AppDbContext context, IEmailService emailService)
+        public AdminController(AppDbContext context, IEmailService emailService, IHubContext<ElectionHub> hubContext)
         {
             _context = context;
             _emailService = emailService;
+            _hubContext = hubContext;
         }
 
         [HttpGet("summary")]
@@ -68,6 +69,9 @@ namespace ElectionMGTAPI.Controllers
 
             _context.Notifications.AddRange(notifs);
             await _context.SaveChangesAsync();
+
+            // Notify via SignalR (Broadcast)
+            await _hubContext.Clients.All.SendAsync("ReceiveNotification", request.Message);
 
             return Ok($"Broadcasted to {userIds.Count} users.");
         }
@@ -118,6 +122,9 @@ namespace ElectionMGTAPI.Controllers
             user.UserRoles.Add(new UserRole { UserId = user.Id, RoleId = newRole.Id });
             await _context.SaveChangesAsync();
 
+            // Broadcast role update
+            await _hubContext.Clients.All.SendAsync("RoleUpdated", user.Id, request.RoleName);
+
             return Ok($"User role updated to {request.RoleName}");
         }
 
@@ -162,7 +169,12 @@ namespace ElectionMGTAPI.Controllers
                     Name = c.User != null ? c.User.Name : "Unknown",
                     Position = c.Position != null ? c.Position.Title : "Unknown",
                     c.Manifesto,
-                    c.UserId
+                    c.UserId,
+                    // New fields for detail review
+                    c.Degree,
+                    c.NationalId,
+                    c.HasBeenInJail,
+                    c.MaritalStatus
                 })
                 .ToListAsync();
             return Ok(pending);
@@ -199,6 +211,14 @@ namespace ElectionMGTAPI.Controllers
             });
 
             await _context.SaveChangesAsync();
+
+            // Notify everyone to update charts/stats
+            await _hubContext.Clients.All.SendAsync("UpdateDashboard");
+            // Notify specific user (if we had connectionId map, for now broadcast broad message or assume user listens)
+            // A more targeted notification would require mapping UserId to ConnectionId.
+            // For now, we broadcast "CandidateApproved" with UserId, and client filters.
+            await _hubContext.Clients.All.SendAsync("CandidateApproved", candidate.UserId);
+
             return Ok("Candidate approved successfully.");
         }
     }

@@ -34,7 +34,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
                             <span className="mr-3">📊</span> Dashboard
                         </a>
                     )}
-                    {user?.permissions.includes('Permissions.Vote') && (
+                    {user?.permissions.includes('Permissions.CanVote') && (
                         <a onClick={() => navigate('/voter')} className={`block px-6 py-3 cursor-pointer flex items-center ${isActive('/voter')}`}>
                             <span className="mr-3">🗳️</span> Voter Area
                         </a>

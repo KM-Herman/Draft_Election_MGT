@@ -39,7 +39,13 @@ namespace ElectionMGTAPI.Controllers
             var candDic = candidates.GroupBy(c => c.PositionId)
                 .ToDictionary(g => g.Key, g => g.Select(c => new CandidateDto(c.Id, c.User?.Name ?? "Unknown", c.Manifesto, c.VoteCount)).ToList());
 
-            return Ok(new DashboardResponse(posDtos, candDic));
+            var userId = GetUserId();
+            var userVotedPositionIds = await _context.Votes
+                .Where(v => v.VoterUserId == userId)
+                .Select(v => v.PositionId)
+                .ToListAsync();
+
+            return Ok(new DashboardResponse(posDtos, candDic, userVotedPositionIds));
         }
 
         [HttpPost("vote")]
@@ -54,6 +60,25 @@ namespace ElectionMGTAPI.Controllers
                 return BadRequest(result.Error);
             }
             return Ok("Vote cast successfully.");
+        }
+
+        [HttpGet("trends")]
+        public async Task<IActionResult> GetTrends()
+        {
+            var candidates = await _context.Candidates
+                .Include(c => c.User)
+                .Where(c => c.Status == CandidateStatus.Approved)
+                .OrderByDescending(c => c.VoteCount)
+                .Take(10) // Top 10
+                .Select(c => new 
+                { 
+                    Id = c.Id, 
+                    Name = c.User != null ? c.User.Name : "Unknown", 
+                    Votes = c.VoteCount 
+                })
+                .ToListAsync();
+
+            return Ok(candidates);
         }
 
         [HttpGet("notifications")]

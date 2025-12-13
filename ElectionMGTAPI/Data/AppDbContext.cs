@@ -64,8 +64,7 @@ namespace ElectionMGTAPI.Data
                 .HasOne(c => c.User)
                 .WithMany()
                 .HasForeignKey(c => c.UserId)
-                .OnDelete(DeleteBehavior.Restrict); // Prevent cascading delete of user deleting candidate logic if needed, but here simple.
-
+                .OnDelete(DeleteBehavior.Restrict); 
             modelBuilder.Entity<Candidate>()
                 .HasOne(c => c.Position)
                 .WithMany(p => p.Candidates)
@@ -76,11 +75,11 @@ namespace ElectionMGTAPI.Data
                 .HasOne(v => v.VoterUser)
                 .WithMany(u => u.Votes)
                 .HasForeignKey(v => v.VoterUserId)
-                .OnDelete(DeleteBehavior.Restrict); // Important: Don't delete vote if user deleted, or maybe Cascade? Audit says keep history usually.
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Vote>()
                 .HasOne(v => v.Candidate)
-                .WithMany() // Candidate doesn't have Votes collection explicitly in my model, maybe it should?
+                .WithMany()
                 .HasForeignKey(v => v.CandidateId)
                 .OnDelete(DeleteBehavior.Restrict);
 

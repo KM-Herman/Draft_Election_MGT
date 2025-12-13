@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
 interface User {
+    id: number;
     email: string;
     permissions: string[];
     name: string;

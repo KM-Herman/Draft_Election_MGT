@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ElectionMGTAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+456826e04676fcc012114a3d025afaf71424964f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5514bd8ea8c046abcdff077a6a0d7b266acaa1c3")]
 [assembly: System.Reflection.AssemblyProductAttribute("ElectionMGTAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ElectionMGTAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

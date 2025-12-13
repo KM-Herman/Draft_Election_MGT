@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useSignalR } from '../context/SignalRContext';
+import api from '../services/api';
 
 interface ChartData {
     id: number;
@@ -19,31 +20,42 @@ export const LiveChart: React.FC = () => {
     const [data, setData] = useState<ChartData[]>(initialData);
 
     useEffect(() => {
-        if (!connection) return;
+        fetchTrends();
 
-        connection.on("ReceiveVoteUpdate", (candidateId: number, newCount: number) => {
-            setData(prevData => {
-                const exists = prevData.find(d => d.id === candidateId);
-                if (exists) {
-                    return prevData.map(d => d.id === candidateId ? { ...d, votes: newCount } : d);
-                } else {
-                    // New candidate appearing in chart!
-                    // We need the name. SignalR might need to send it, or we fetch it.
-                    // For simplicity, we might just re-fetch the whole list if we can.
+        if (connection) {
+            connection.on("ReceiveVoteUpdate", (candidateId: number, newCount: number) => {
+                setData(prevData => {
+                    const exists = prevData.find(d => d.id === candidateId);
+                    if (exists) {
+                        return prevData.map(d => d.id === candidateId ? { ...d, votes: newCount } : d);
+                    }
+                    // Optional: If new candidate (not in top 10 originally) gets votes, we might want to re-fetch
+                    // For now, simple update
                     return prevData;
-                }
+                });
             });
-        });
 
-        connection.on("UpdateDashboard", () => {
-            // Mock Refresh or re-fetch logic
-        });
+            connection.on("UpdateDashboard", () => {
+                fetchTrends();
+            });
+        }
 
         return () => {
-            connection.off("ReceiveVoteUpdate");
-            connection.off("UpdateDashboard");
+            if (connection) {
+                connection.off("ReceiveVoteUpdate");
+                connection.off("UpdateDashboard");
+            }
         };
     }, [connection]);
+
+    const fetchTrends = async () => {
+        try {
+            const res = await api.get('/voter/trends');
+            setData(res.data);
+        } catch (err) {
+            console.error("Failed to fetch trends", err);
+        }
+    };
 
     return (
         <div style={{ width: '100%', height: 300 }}>

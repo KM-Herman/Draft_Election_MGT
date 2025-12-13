@@ -71,5 +71,29 @@ namespace ElectionMGTAPI.Services
 
             return (true, user, string.Empty);
         }
+
+        public async Task<(bool Success, string Token, string Error)> RefreshTokenAsync(int userId)
+        {
+            var user = await _context.Users
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                .ThenInclude(r => r.RolePermissions)
+                .ThenInclude(rp => rp.Permission)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null || !user.IsActive)
+                return (false, string.Empty, "User not found or inactive");
+
+            // Aggregate fresh permissions
+            var permissions = user.UserRoles
+                .SelectMany(ur => ur.Role!.RolePermissions)
+                .Select(rp => rp.Permission!.Name)
+                .Distinct()
+                .ToList();
+
+            var token = _tokenService.GenerateToken(user, permissions);
+
+            return (true, token, string.Empty);
+        }
     }
 }

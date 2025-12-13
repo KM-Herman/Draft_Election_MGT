@@ -33,7 +33,10 @@ export const Login: React.FC = () => {
                 permissions = [payload.permissions];
             }
 
+            const userId = payload.id ? parseInt(payload.id) : 0;
+
             const userWithPerms = {
+                id: userId,
                 email: email,
                 name: email.split('@')[0], // Mock name fallback, or use claim if available
                 profileDetails: '',

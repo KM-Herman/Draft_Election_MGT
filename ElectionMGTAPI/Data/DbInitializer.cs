@@ -10,10 +10,14 @@ namespace ElectionMGTAPI.Data
         {
             await context.Database.EnsureCreatedAsync();
 
-            if (!await context.Permissions.AnyAsync())
+            // Ensure all permissions exist
+            var existingPerms = await context.Permissions.Select(p => p.Name).ToListAsync();
+            var missingPerms = Permissions.All.Except(existingPerms).ToList();
+
+            if (missingPerms.Any())
             {
-                var perms = Permissions.All.Select(p => new Permission { Name = p }).ToList();
-                context.Permissions.AddRange(perms);
+                var newPerms = missingPerms.Select(p => new Permission { Name = p }).ToList();
+                context.Permissions.AddRange(newPerms);
                 await context.SaveChangesAsync();
             }
 
@@ -47,25 +51,30 @@ namespace ElectionMGTAPI.Data
             }
 
             // Ensure Candidate Role Exists (Independent Check)
-            if (!await context.Roles.AnyAsync(r => r.Name == "Candidate"))
+            // Ensure Candidate Role Exists (Independent Check)
+            var candidateRole = await context.Roles.Include(r => r.RolePermissions).FirstOrDefaultAsync(r => r.Name == "Candidate");
+            if (candidateRole == null)
             {
-                var candidateRole = new Role { Name = "Candidate" };
+                candidateRole = new Role { Name = "Candidate" };
                 context.Roles.Add(candidateRole);
                 await context.SaveChangesAsync();
+            }
 
-                var allPerms = await context.Permissions.ToListAsync();
-                var candidatePerms = allPerms.Where(p =>
-                    p.Name == Permissions.CanVote ||
-                    p.Name == Permissions.CanViewDashboard ||
-                    p.Name == Permissions.CanAccessCandidateDashboard
-                ).ToList();
+            var allPermissions = await context.Permissions.ToListAsync();
+            var candidatePerms = allPermissions.Where(p =>
+                p.Name == Permissions.CanVote ||
+                p.Name == Permissions.CanViewDashboard ||
+                p.Name == Permissions.CanAccessCandidateDashboard
+            ).ToList();
 
-                foreach (var p in candidatePerms)
+            foreach (var p in candidatePerms)
+            {
+                if (!context.RolePermissions.Any(rp => rp.RoleId == candidateRole.Id && rp.PermissionId == p.Id))
                 {
                     context.RolePermissions.Add(new RolePermission { RoleId = candidateRole.Id, PermissionId = p.Id });
                 }
-                await context.SaveChangesAsync();
             }
+            await context.SaveChangesAsync();
 
             if (!await context.Users.AnyAsync(u => u.Email == "admin@election.com"))
             {

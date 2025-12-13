@@ -36,5 +36,18 @@ namespace ElectionMGTAPI.Controllers
             }
             return Ok("User registered successfully");
         }
+
+        [HttpPost("refresh-token")]
+        [Microsoft.AspNetCore.Authorization.Authorize]
+        public async Task<IActionResult> RefreshToken()
+        {
+            var userId = int.Parse(User.FindFirst("id")?.Value ?? "0");
+            var result = await _authService.RefreshTokenAsync(userId);
+            
+            if (!result.Success)
+                return Unauthorized(new { error = result.Error });
+
+            return Ok(new AuthResponse(result.Token, string.Empty));
+        }
     }
 }

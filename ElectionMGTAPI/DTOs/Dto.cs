@@ -22,7 +22,7 @@
 
     public record PositionDto(int Id, string Title, string Description);
     public record CandidateDto(int Id, string Name, string Manifesto, int VoteCount);
-    public record DashboardResponse(List<PositionDto> Positions, Dictionary<int, List<CandidateDto>> CandidatesByPosition);
+    public record DashboardResponse(List<PositionDto> Positions, Dictionary<int, List<CandidateDto>> CandidatesByPosition, List<int> UserVotedPositionIds);
 
     public record BroadcastRequest(string Message, string TargetGroup);
 }

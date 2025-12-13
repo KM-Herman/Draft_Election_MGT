@@ -40,6 +40,11 @@ export interface AuditLog {
     performedBy: string;
 }
 
+export interface DashboardData {
+    positions: PositionDto[];
+    candidatesByPosition: Record<number, CandidateDto[]>;
+    userVotedPositionIds: number[];
+}
 export interface PendingCandidate {
     id: number;
     name: string;

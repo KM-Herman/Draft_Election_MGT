@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import api, { Notification } from '../services/api';
 import { useAuthStore } from '../store/authStore';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 export const CandidateDashboard: React.FC = () => {
     const { user } = useAuthStore();
+    const navigate = useNavigate();
     const [stats, setStats] = useState({ rank: 0, voteCount: 0 });
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [activeTab, setActiveTab] = useState<'overview' | 'settings'>('overview');
@@ -65,6 +67,12 @@ export const CandidateDashboard: React.FC = () => {
                     <p className="text-gray-500">Welcome, {user?.name}</p>
                 </div>
                 <div className="flex space-x-2">
+                    <button
+                        onClick={() => navigate('/voter')}
+                        className="px-4 py-2 rounded-lg font-medium bg-green-600 text-white hover:bg-green-700 transition shadow-sm flex items-center"
+                    >
+                        <span className="mr-2">🗳️</span> Cast Vote
+                    </button>
                     <button
                         onClick={() => setActiveTab('overview')}
                         className={`px-4 py-2 rounded-lg font-medium transition ${activeTab === 'overview' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
